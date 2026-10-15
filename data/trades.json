@@ -1,0 +1,14 @@
+[
+    {
+      "trade_id": "2d9c1a6e-3b4f-4c2a-9f1e-8a7b6c5d4e3f",
+      "symbol": "AAPL",
+      "price": 189.5,
+      "quantity": 10,
+      "buy_order_id": "6f1c2b8a-1d4e-4a9b-8c7d-5e6f708192a3",
+      "buy_account_id": 100001,
+      "sell_order_id": "9a8b7c6d-5e4f-4a3b-2c1d-0e9f8a7b6c5d",
+      "sell_account_id": 100002,
+      "timestamp": "2026-10-15T09:00:00Z",
+      "remaining_quantity": 0
+    }
+  ]

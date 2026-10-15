@@ -1,0 +1,1 @@
+// Någon vill köpa 10 AAPL för 100. Det finns ingen säljare till det priset, så ordern läggs i boken.

@@ -29,6 +29,8 @@ public class Trade {
         this.buyAccountId = buyAccountId;
         this.sellOrderId = sellOrderId;
         this.sellAccountId = sellAccountId;
+        
+        //
         this.timestamp = timestamp;
         this.remainingQuantity = remainingQuantity;
     }

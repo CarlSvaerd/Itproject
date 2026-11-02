@@ -13,8 +13,8 @@ public class Exchange
     {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         
-        server.createContext("/orders", new Orders());
-        server.createContext("/trades", new Trades());
+        server.createContext("/orders", new Orders()::handlePost);
+        server.createContext("/trades", new Trades()::handleGet);
         
         server.start();
         

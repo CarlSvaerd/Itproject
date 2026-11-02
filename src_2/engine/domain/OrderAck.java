@@ -21,4 +21,24 @@ public class OrderAck {
         this.rejectReason = rejectReason;
         this.timestamp = timestamp;
     }
+
+    public UUID getOrderId() {
+        return orderId;
+    }
+
+    public int getAccountId() {
+        return accountId;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public String getRejectReason() {
+        return rejectReason;
+    }
+
+    public Instant getTimestamp() {
+        return timestamp;
+    }
 }

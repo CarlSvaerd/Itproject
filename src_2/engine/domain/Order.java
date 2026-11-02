@@ -14,7 +14,7 @@ public class Order {
     private final Side side;
     private final double price;
     private final int quantity;
-    private final int remainingQuantity;
+    private int remainingQuantity;
     private final Instant timestamp;
 
     public Order(UUID orderId, int accountId, String symbol, Side side, double price, int quantity,
@@ -61,5 +61,7 @@ public class Order {
         return timestamp;
     }
 
-    
+    public void reduceRemainingQuantity(int filledQuantity) {
+        remainingQuantity = remainingQuantity - filledQuantity;
+    }
 }

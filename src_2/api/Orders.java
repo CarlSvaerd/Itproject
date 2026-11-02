@@ -3,36 +3,45 @@
 package api;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
-public class Orders implements HttpHandler
+public class Orders
 {
-    public void handle(HttpExchange http) throws IOException
+    public void handlePost(HttpExchange exchange) throws IOException
     {
-        if (!"POST".equals(http.getRequestMethod()))
+        boolean isPost = "POST".equals(exchange.getRequestMethod());
+        if (isPost == false)
         {
-            send(http, 405, "Use POST\n");
+            writeResponse(exchange, 405, "Use POST\n");
             return;
         }
 
-        String body = new String(http.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-        send(http, 200, body);
+        placeOrder(exchange);
     }
 
-    private static void send(HttpExchange http, int status, String body) throws IOException
+
+    private void placeOrder(HttpExchange exchange) throws IOException
     {
-        byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+        byte[] requestBytes = exchange.getRequestBody().readAllBytes();
+        String orderJson = new String(requestBytes, StandardCharsets.UTF_8);
+        int status = 200;
         
-        http.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
-        http.sendResponseHeaders(status, bytes.length);
-        
-        try (OutputStream out = http.getResponseBody())
+        writeResponse(exchange, status, orderJson);
+    }
+
+    private static void writeResponse(HttpExchange exchange, int statusCode, String responseText) throws IOException
+    {
+        byte[] responseBytes = responseText.getBytes(StandardCharsets.UTF_8);
+
+        exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
+        exchange.sendResponseHeaders(statusCode, responseBytes.length);
+
+        try (OutputStream responseBody = exchange.getResponseBody())
         {
-            out.write(bytes);
+            responseBody.write(responseBytes);
         }
     }
 }

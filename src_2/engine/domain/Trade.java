@@ -34,4 +34,44 @@ public class Trade {
         this.timestamp = timestamp;
         this.remainingQuantity = remainingQuantity;
     }
+
+    public UUID getTradeId() {
+        return tradeId;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public UUID getBuyOrderId() {
+        return buyOrderId;
+    }
+
+    public int getBuyAccountId() {
+        return buyAccountId;
+    }
+
+    public UUID getSellOrderId() {
+        return sellOrderId;
+    }
+
+    public int getSellAccountId() {
+        return sellAccountId;
+    }
+
+    public Instant getTimestamp() {
+        return timestamp;
+    }
+
+    public int getRemainingQuantity() {
+        return remainingQuantity;
+    }
 }

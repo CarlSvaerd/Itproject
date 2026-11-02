@@ -8,6 +8,11 @@ import java.util.UUID;
 
 public class OrderSimulator {
 
+    /**
+     * Generates a list of random PlaceOrderRequest objects.
+     * @param count the number of random orders to generate.
+     * @return an ArrayList of PlaceOrderRequest objects.
+     */
     public ArrayList<PlaceOrderRequest> generateRandomOrders(int count) {
         Random rnd = new Random();
         ArrayList<PlaceOrderRequest> orders = new ArrayList<>();

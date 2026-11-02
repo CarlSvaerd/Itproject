@@ -28,4 +28,38 @@ public class Order {
         this.remainingQuantity = remainingQuantity;
         this.timestamp = timestamp;
     }
+
+    public UUID getOrderId() {
+        return orderId;
+    }
+
+    public int getAccountId() {
+        return accountId;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public Side getSide() {
+        return side;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public int getRemainingQuantity() {
+        return remainingQuantity;
+    }
+
+    public Instant getTimestamp() {
+        return timestamp;
+    }
+
+    
 }

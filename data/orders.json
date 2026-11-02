@@ -5,7 +5,9 @@
     "symbol": "AAPL",
     "side": "buy",
     "price": 100,
-    "quantity": 10
+    "quantity": 10,
+    "remaining_quantity": 10,
+    "timestamp": "2026-11-02T15:00:00Z"
   },
   {
     "order_id": "22222222-2222-2222-2222-222222222222",
@@ -13,6 +15,8 @@
     "symbol": "AAPL",
     "side": "sell",
     "price": 99,
-    "quantity": 4
+    "quantity": 4,
+    "remaining_quantity": 4,
+    "timestamp": "2026-11-02T15:01:00Z"
   }
 ]

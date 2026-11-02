@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -58,13 +59,13 @@ final class OrdersJsonParser {
             expect('}');
         }
         return new Order(
-                UUID.fromString(stringField(fields, "orderId")),
-                Integer.parseInt(numberField(fields, "accountId")),
+                UUID.fromString(stringField(fields, "order_id")),
+                Integer.parseInt(numberField(fields, "account_id")),
                 stringField(fields, "symbol"),
-                Order.Side.valueOf(stringField(fields, "side")),
+                Order.Side.valueOf(stringField(fields, "side").toUpperCase(Locale.ROOT)),
                 Double.parseDouble(numberField(fields, "price")),
                 Integer.parseInt(numberField(fields, "quantity")),
-                Integer.parseInt(numberField(fields, "remainingQuantity")),
+                Integer.parseInt(numberField(fields, "remaining_quantity")),
                 Instant.parse(stringField(fields, "timestamp")));
     }
 

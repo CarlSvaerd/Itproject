@@ -30,7 +30,40 @@ public final class OrdersJsonParser {
         }
         return order;
     }
+    public static List<Trade> parseTrades(String json) {
+        OrdersJsonParser parser = new OrdersJsonParser(json);
+        List<Trade> trades = new ArrayList<>();
+        parser.skipWhitespace();
+        parser.expect('[');
+        parser.skipWhitespace();
+        if (!parser.consume(']')) {
+            do {
+                parser.skipWhitespace();
+                trades.add(toTrade(parser.parseOrderFields()));
+                parser.skipWhitespace();
+            } while (parser.consume(','));
+            parser.expect(']');
+        }
+        parser.skipWhitespace();
+        if (parser.index != json.length()) {
+            throw parser.error("Unexpected content after trades array");
+        }
+        return trades;
+    }
 
+    private static Trade toTrade(Map<String, Value> fields) {
+        return new Trade(
+                UUID.fromString(stringField(fields, "trade_id")),
+                stringField(fields, "symbol"),
+                Double.parseDouble(numberField(fields, "price")),
+                Integer.parseInt(numberField(fields, "quantity")),
+                UUID.fromString(stringField(fields, "buy_order_id")),
+                Integer.parseInt(numberField(fields, "buy_account_id")),
+                UUID.fromString(stringField(fields, "sell_order_id")),
+                Integer.parseInt(numberField(fields, "sell_account_id")),
+                Instant.parse(stringField(fields, "timestamp")),
+                Integer.parseInt(numberField(fields, "remaining_quantity")));
+    }
     private List<Order> parseOrders() {
         List<Order> orders = new ArrayList<>();
         skipWhitespace();

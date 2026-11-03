@@ -9,6 +9,7 @@ import engine.domain.MatchResult;
 import engine.domain.Order;
 import engine.domain.OrderAck;
 import engine.domain.OrderBook;
+import engine.domain.OrdersJsonParser;
 import engine.domain.Trade;
 
 import java.io.IOException;
@@ -22,6 +23,16 @@ public class MatchingEngine
 {
     private final OrderBook book = new OrderBook();
     private final List<Trade> trades = new ArrayList<>();
+
+    public MatchingEngine() throws IOException
+    {
+        // Läs in tidigare trades så att historiken finns kvar mellan körningar
+        Path tradesPath = Path.of("data", "trades.json");
+        if (Files.exists(tradesPath))
+        {
+            trades.addAll(OrdersJsonParser.parseTrades(Files.readString(tradesPath)));
+        }
+    }
 
     public MatchResult place(Order order) throws IOException
     {

@@ -42,13 +42,25 @@ public class Orders
             Order order = OrdersJsonParser.parseNewOrder(orderJson);
             MatchResult result = matchingEngine.place(order);
             if (result.getAck().getStatus() == engine.domain.OrderAck.Status.REJECTED) {
-                writeResponse(exchange, 400, "{\"error\":\"Order rejected\"}");
+                writeResponse(exchange, 400, ackJson(result.getAck()));
                 return;
             }
-            writeResponse(exchange, 200, orderJson);
+            writeResponse(exchange, 200, ackJson(result.getAck()));
         } catch (IllegalArgumentException | DateTimeException e) {
             writeResponse(exchange, 400, "{\"error\":\"Invalid order\"}");
         }
+    }
+
+    private static String ackJson(engine.domain.OrderAck ack)
+    {
+        String reason = ack.getRejectReason() == null ? "null" : "\"" + ack.getRejectReason() + "\"";
+        return "{\n"
+                + "  \"order_id\": \"" + ack.getOrderId() + "\",\n"
+                + "  \"account_id\": " + ack.getAccountId() + ",\n"
+                + "  \"status\": \"" + ack.getStatus().name().toLowerCase() + "\",\n"
+                + "  \"reject_reason\": " + reason + ",\n"
+                + "  \"timestamp\": \"" + ack.getTimestamp() + "\"\n"
+                + "}\n";
     }
 
     private static void writeResponse(HttpExchange exchange, int statusCode, String responseText) throws IOException

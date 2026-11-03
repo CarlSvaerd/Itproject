@@ -9,6 +9,9 @@ import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Comparator;
+import java.time.Instant;
+import java.util.Iterator;
+import java.util.UUID;
 
 public class OrderBook {
     private final List<Order> buyOrders = new ArrayList<>();
@@ -50,6 +53,53 @@ public class OrderBook {
         }
     }
 
+    /**
+     * Matchar en inkommande order mot motsatt sida i boken.
+     * Returnerar de avslut som blev. Fyllda ordrar tas bort från boken.
+     */
+    public List<Trade> match(Order incoming) {
+        List<Trade> trades = new ArrayList<>();
+        boolean isBuy = incoming.getSide() == Order.Side.BUY;
+        List<Order> opposite = isBuy ? sellOrders : buyOrders;
+
+        Iterator<Order> it = opposite.iterator();
+        while (incoming.getRemainingQuantity() > 0 && it.hasNext()) {
+            Order resting = it.next();
+
+            if (!resting.getSymbol().equals(incoming.getSymbol())) {
+                continue;
+            }
+
+            boolean priceOk = isBuy
+                    ? resting.getPrice() <= incoming.getPrice()
+                    : resting.getPrice() >= incoming.getPrice();
+            if (!priceOk) {
+                break; // listan är sorterad, så resten är ännu sämre
+            }
+
+            int qty = Math.min(incoming.getRemainingQuantity(), resting.getRemainingQuantity());
+            incoming.reduceRemainingQuantity(qty);
+            resting.reduceRemainingQuantity(qty);
+
+            Order buy = isBuy ? incoming : resting;
+            Order sell = isBuy ? resting : incoming;
+
+            trades.add(new Trade(
+                    UUID.randomUUID(),
+                    incoming.getSymbol(),
+                    resting.getPrice(),        // avslut på priset som låg i boken
+                    qty,
+                    buy.getOrderId(), buy.getAccountId(),
+                    sell.getOrderId(), sell.getAccountId(),
+                    Instant.now(),
+                    incoming.getRemainingQuantity()));
+
+            if (resting.getRemainingQuantity() == 0) {
+                it.remove(); // helt fylld, bort från boken
+            }
+        }
+        return trades;
+    }
     public List<Order> getBuyOrders() {
         return buyOrders;
     }

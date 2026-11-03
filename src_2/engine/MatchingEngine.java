@@ -22,7 +22,12 @@ public class MatchingEngine
 
     public boolean place(Order order) throws IOException
     {
-        book.addOrder(order);
+        trades.addAll(book.match(order));
+
+        if (order.getRemainingQuantity() > 0)
+        {
+            book.addOrder(order);
+        }
 
         Files.writeString(Path.of("data", "orders.json"), ordersJson());
         Files.writeString(Path.of("data", "trades.json"), tradesJson());

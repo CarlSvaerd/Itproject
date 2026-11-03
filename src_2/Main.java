@@ -1,7 +1,11 @@
 // Starts the market
 // java Main 10 - generates 10 orders and writes orders.json and trades.json
+// java Main --simulate [duration-seconds] [interval-millis] - runs an HTTP order event demo
 
+import com.sun.net.httpserver.HttpServer;
 import java.util.ArrayList;
+import java.net.URI;
+import java.time.Duration;
 
 import api.Exchange;
 import engine.MatchingEngine;
@@ -12,6 +16,12 @@ import simulator.OrderSimulator;
 public class Main {
     public static void main(String[] args) throws Exception
     {
+        if (args.length > 0 && "--simulate".equals(args[0]))
+        {
+            runOrderEventDemo(args);
+            return;
+        }
+
         boolean generateOrders = args.length == 1;
         if (generateOrders)
         {
@@ -29,5 +39,30 @@ public class Main {
         }
 
         new Exchange().start();
+    }
+
+    private static void runOrderEventDemo(String[] args) throws Exception
+    {
+        if (args.length > 3)
+        {
+            throw new IllegalArgumentException("Usage: java Main --simulate [duration-seconds] [interval-millis]");
+        }
+        long durationSeconds = args.length > 1 ? Long.parseLong(args[1]) : 10;
+        long intervalMillis = args.length > 2 ? Long.parseLong(args[2]) : 1000;
+
+        HttpServer server = new Exchange().start();
+        try
+        {
+            Thread sender = new OrderSimulator().sendRandomOrderEvents(
+                    URI.create("http://localhost:8080/orders"),
+                    Duration.ofSeconds(durationSeconds),
+                    Duration.ofMillis(intervalMillis));
+            sender.join();
+            System.out.println("Random order event demo completed.");
+        }
+        finally
+        {
+            server.stop(0);
+        }
     }
 }

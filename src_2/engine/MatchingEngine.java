@@ -59,8 +59,10 @@ public class MatchingEngine
         List<Order> allOrders = new ArrayList<>();
         allOrders.addAll(book.getBuyOrders());
         allOrders.addAll(book.getSellOrders());
-        Files.writeString(Path.of("data", "orders.json"), JsonSerializer.ordersToJson(allOrders));
-        Files.writeString(Path.of("data", "trades.json"), JsonSerializer.tradesToJson(trades));
+        Path dataDirectory = Path.of("data");
+        Files.createDirectories(dataDirectory);
+        Files.writeString(dataDirectory.resolve("orders.json"), JsonSerializer.ordersToJson(allOrders));
+        Files.writeString(dataDirectory.resolve("trades.json"), JsonSerializer.tradesToJson(trades));
 
         return new MatchResult(accepted, newTrades);
     }

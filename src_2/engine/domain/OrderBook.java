@@ -30,6 +30,9 @@ public class OrderBook {
         if (!Files.exists(ordersPath)) {
             ordersPath = Path.of("exchange-simulator", "data", "orders.json");
         }
+        if (!Files.exists(ordersPath)) {
+            return;
+        }
         try {
             for (Order order : OrdersJsonParser.parse(Files.readString(ordersPath))) {
                 this.addOrder(order);

@@ -10,7 +10,7 @@ import java.net.InetSocketAddress;
 
 public class Exchange 
 {
-    public void start() throws IOException 
+    public HttpServer start() throws IOException 
     {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         MatchingEngine matchingEngine = new MatchingEngine();
@@ -21,5 +21,6 @@ public class Exchange
         server.start();
         
         System.out.println("Listening on http://localhost:8080");
+        return server;
     }
 }

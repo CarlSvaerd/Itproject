@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import api.Exchange;
 import engine.MatchingEngine;
+import engine.domain.MatchResult;
 import engine.domain.Order;
 import simulator.OrderSimulator;
 
@@ -20,8 +21,9 @@ public class Main {
 
             for (Order generatedOrder : generatedOrders)
             {
-                boolean accepted = matchingEngine.place(generatedOrder);
-                System.out.println(accepted + " " + generatedOrder.getOrderId());
+                MatchResult result = matchingEngine.place(generatedOrder);
+                System.out.println(result.getAck().getStatus() + " " + generatedOrder.getOrderId()
+                        + " trades=" + result.getTrades().size());
             }
             return;
         }

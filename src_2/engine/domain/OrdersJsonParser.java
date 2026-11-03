@@ -8,7 +8,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-final class OrdersJsonParser {
+public final class OrdersJsonParser {
     private final String json;
     private int index;
 
@@ -18,6 +18,17 @@ final class OrdersJsonParser {
 
     static List<Order> parse(String json) {
         return new OrdersJsonParser(json).parseOrders();
+    }
+
+    public static Order parseNewOrder(String json) {
+        OrdersJsonParser parser = new OrdersJsonParser(json);
+        parser.skipWhitespace();
+        Order order = parser.parseNewOrder();
+        parser.skipWhitespace();
+        if (parser.index != json.length()) {
+            throw parser.error("Unexpected content after order");
+        }
+        return order;
     }
 
     private List<Order> parseOrders() {
@@ -41,6 +52,36 @@ final class OrdersJsonParser {
     }
 
     private Order parseOrder() {
+        Map<String, Value> fields = parseOrderFields();
+        return new Order(
+                UUID.fromString(stringField(fields, "order_id")),
+                Integer.parseInt(numberField(fields, "account_id")),
+                stringField(fields, "symbol"),
+                Order.Side.valueOf(stringField(fields, "side").toUpperCase(Locale.ROOT)),
+                Double.parseDouble(numberField(fields, "price")),
+                Integer.parseInt(numberField(fields, "quantity")),
+                Integer.parseInt(numberField(fields, "remaining_quantity")),
+                Instant.parse(stringField(fields, "timestamp")));
+    }
+
+    private Order parseNewOrder() {
+        Map<String, Value> fields = parseOrderFields();
+        int quantity = Integer.parseInt(numberField(fields, "quantity"));
+        Value orderId = fields.get("order_id");
+        Value remainingQuantity = fields.get("remaining_quantity");
+        Value timestamp = fields.get("timestamp");
+        return new Order(
+                orderId == null ? UUID.randomUUID() : UUID.fromString(stringValue(orderId, "order_id")),
+                Integer.parseInt(numberField(fields, "account_id")),
+                stringField(fields, "symbol"),
+                Order.Side.valueOf(stringField(fields, "side").toUpperCase(Locale.ROOT)),
+                Double.parseDouble(numberField(fields, "price")),
+                quantity,
+                remainingQuantity == null ? quantity : Integer.parseInt(numberValue(remainingQuantity, "remaining_quantity")),
+                timestamp == null ? Instant.now() : Instant.parse(stringValue(timestamp, "timestamp")));
+    }
+
+    private Map<String, Value> parseOrderFields() {
         Map<String, Value> fields = new HashMap<>();
         expect('{');
         skipWhitespace();
@@ -58,15 +99,7 @@ final class OrdersJsonParser {
             } while (consume(','));
             expect('}');
         }
-        return new Order(
-                UUID.fromString(stringField(fields, "order_id")),
-                Integer.parseInt(numberField(fields, "account_id")),
-                stringField(fields, "symbol"),
-                Order.Side.valueOf(stringField(fields, "side").toUpperCase(Locale.ROOT)),
-                Double.parseDouble(numberField(fields, "price")),
-                Integer.parseInt(numberField(fields, "quantity")),
-                Integer.parseInt(numberField(fields, "remaining_quantity")),
-                Instant.parse(stringField(fields, "timestamp")));
+        return fields;
     }
 
     private Value parseValue() {
@@ -159,6 +192,17 @@ final class OrdersJsonParser {
 
     private static String numberField(Map<String, Value> fields, String name) {
         Value value = required(fields, name);
+        return numberValue(value, name);
+    }
+
+    private static String stringValue(Value value, String name) {
+        if (!value.string()) {
+            throw new IllegalArgumentException("Expected string field: " + name);
+        }
+        return value.text();
+    }
+
+    private static String numberValue(Value value, String name) {
         if (value.string()) {
             throw new IllegalArgumentException("Expected numeric field: " + name);
         }

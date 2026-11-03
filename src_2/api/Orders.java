@@ -3,10 +3,12 @@
 package api;
 
 import com.sun.net.httpserver.HttpExchange;
-
+import engine.domain.Order;
+import engine.domain.OrdersJsonParser;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.DateTimeException;
 
 public class Orders
 {
@@ -27,9 +29,12 @@ public class Orders
     {
         byte[] requestBytes = exchange.getRequestBody().readAllBytes();
         String orderJson = new String(requestBytes, StandardCharsets.UTF_8);
-        int status = 200;
-        
-        writeResponse(exchange, status, orderJson);
+        try {
+            Order order = OrdersJsonParser.parseNewOrder(orderJson);
+            writeResponse(exchange, 200, orderJson);
+        } catch (IllegalArgumentException | DateTimeException e) {
+            writeResponse(exchange, 400, "{\"error\":\"Invalid order\"}");
+        }
     }
 
     private static void writeResponse(HttpExchange exchange, int statusCode, String responseText) throws IOException

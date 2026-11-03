@@ -4,6 +4,7 @@
 package simulator;
 
 import engine.domain.Order;
+import serialization.JsonSerializer;
 import java.time.Instant;
 import java.time.Duration;
 import java.net.URI;
@@ -13,7 +14,6 @@ import java.net.http.HttpResponse;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
@@ -77,7 +77,7 @@ public class OrderSimulator {
                 HttpRequest request = HttpRequest.newBuilder(endpoint)
                         .header("Content-Type", "application/json; charset=utf-8")
                         .timeout(Duration.ofSeconds(5))
-                        .POST(HttpRequest.BodyPublishers.ofString(toJson(order)))
+                        .POST(HttpRequest.BodyPublishers.ofString(JsonSerializer.orderToJson(order)))
                         .build();
 
                 try {
@@ -112,16 +112,4 @@ public class OrderSimulator {
         return sender;
     }
 
-    private static String toJson(Order order) {
-        return "{"
-                + "\"order_id\":\"" + order.getOrderId() + "\","
-                + "\"account_id\":" + order.getAccountId() + ","
-                + "\"symbol\":\"" + order.getSymbol() + "\","
-                + "\"side\":\"" + order.getSide().name().toLowerCase(Locale.ROOT) + "\","
-                + "\"price\":" + order.getPrice() + ","
-                + "\"quantity\":" + order.getQuantity() + ","
-                + "\"remaining_quantity\":" + order.getRemainingQuantity() + ","
-                + "\"timestamp\":\"" + order.getTimestamp() + "\""
-                + "}";
-    }
 }

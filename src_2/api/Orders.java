@@ -7,6 +7,8 @@ import engine.MatchingEngine;
 import engine.domain.MatchResult;
 import engine.domain.Order;
 import engine.domain.OrdersJsonParser;
+import engine.domain.OrderAck;
+import serialization.JsonSerializer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -41,26 +43,14 @@ public class Orders
         try {
             Order order = OrdersJsonParser.parseNewOrder(orderJson);
             MatchResult result = matchingEngine.place(order);
-            if (result.getAck().getStatus() == engine.domain.OrderAck.Status.REJECTED) {
-                writeResponse(exchange, 400, ackJson(result.getAck()));
+            if (result.getAck().getStatus() == OrderAck.Status.REJECTED) {
+                writeResponse(exchange, 400, JsonSerializer.orderAckToJson(result.getAck()));
                 return;
             }
-            writeResponse(exchange, 200, ackJson(result.getAck()));
+            writeResponse(exchange, 200, JsonSerializer.orderAckToJson(result.getAck()));
         } catch (IllegalArgumentException | DateTimeException e) {
-            writeResponse(exchange, 400, "{\"error\":\"Invalid order\"}");
+            writeResponse(exchange, 400, JsonSerializer.errorToJson("Invalid order"));
         }
-    }
-
-    private static String ackJson(engine.domain.OrderAck ack)
-    {
-        String reason = ack.getRejectReason() == null ? "null" : "\"" + ack.getRejectReason() + "\"";
-        return "{\n"
-                + "  \"order_id\": \"" + ack.getOrderId() + "\",\n"
-                + "  \"account_id\": " + ack.getAccountId() + ",\n"
-                + "  \"status\": \"" + ack.getStatus().name().toLowerCase() + "\",\n"
-                + "  \"reject_reason\": " + reason + ",\n"
-                + "  \"timestamp\": \"" + ack.getTimestamp() + "\"\n"
-                + "}\n";
     }
 
     private static void writeResponse(HttpExchange exchange, int statusCode, String responseText) throws IOException

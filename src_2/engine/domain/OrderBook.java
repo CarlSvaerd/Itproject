@@ -36,7 +36,7 @@ public class OrderBook {
         }
     }
 
-    private void addOrder(Order order) {
+    public void addOrder(Order order) {
         if (order.getSide() == Order.Side.BUY) {
             buyOrders.add(order);
         } else {

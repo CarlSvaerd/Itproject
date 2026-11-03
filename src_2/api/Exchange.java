@@ -3,6 +3,7 @@
 package api;
 
 import com.sun.net.httpserver.HttpServer;
+import engine.MatchingEngine;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -12,8 +13,9 @@ public class Exchange
     public void start() throws IOException 
     {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+        MatchingEngine matchingEngine = new MatchingEngine();
         
-        server.createContext("/orders", new Orders()::handlePost);
+        server.createContext("/orders", new Orders(matchingEngine)::handlePost);
         server.createContext("/trades", new Trades()::handleGet);
         
         server.start();

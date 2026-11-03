@@ -3,6 +3,8 @@
 package api;
 
 import com.sun.net.httpserver.HttpExchange;
+import engine.MatchingEngine;
+import engine.domain.MatchResult;
 import engine.domain.Order;
 import engine.domain.OrdersJsonParser;
 import java.io.IOException;
@@ -12,6 +14,13 @@ import java.time.DateTimeException;
 
 public class Orders
 {
+    private final MatchingEngine matchingEngine;
+
+    public Orders(MatchingEngine matchingEngine)
+    {
+        this.matchingEngine = matchingEngine;
+    }
+
     public void handlePost(HttpExchange exchange) throws IOException
     {
         boolean isPost = "POST".equals(exchange.getRequestMethod());
@@ -31,6 +40,11 @@ public class Orders
         String orderJson = new String(requestBytes, StandardCharsets.UTF_8);
         try {
             Order order = OrdersJsonParser.parseNewOrder(orderJson);
+            MatchResult result = matchingEngine.place(order);
+            if (result.getAck().getStatus() == engine.domain.OrderAck.Status.REJECTED) {
+                writeResponse(exchange, 400, "{\"error\":\"Order rejected\"}");
+                return;
+            }
             writeResponse(exchange, 200, orderJson);
         } catch (IllegalArgumentException | DateTimeException e) {
             writeResponse(exchange, 400, "{\"error\":\"Invalid order\"}");

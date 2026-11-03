@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Comparator;
 
 public class OrderBook {
     private final List<Order> buyOrders = new ArrayList<>();
@@ -39,8 +39,14 @@ public class OrderBook {
     public void addOrder(Order order) {
         if (order.getSide() == Order.Side.BUY) {
             buyOrders.add(order);
+            // Högst pris först, vid lika pris äldst först
+            buyOrders.sort(Comparator.comparing(Order::getPrice).reversed()
+                    .thenComparing(Order::getTimestamp));
         } else {
             sellOrders.add(order);
+            // Lägst pris först, vid lika pris äldst först
+            sellOrders.sort(Comparator.comparing(Order::getPrice)
+                    .thenComparing(Order::getTimestamp));
         }
     }
 

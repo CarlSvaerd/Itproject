@@ -67,6 +67,9 @@ public final class OrdersJsonParser {
     private List<Order> parseOrders() {
         List<Order> orders = new ArrayList<>();
         skipWhitespace();
+        if (index == json.length()) {
+            return orders;
+        }
         expect('[');
         skipWhitespace();
         if (!consume(']')) {

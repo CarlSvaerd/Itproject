@@ -6,8 +6,6 @@ import engine.domain.OrderAck;
 import engine.domain.OrderBook;
 import engine.domain.OrdersJsonParser;
 import engine.domain.Trade;
-import serialization.JsonSerializer;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,11 +39,12 @@ public class MatchingEngine
     }
 
     /**
-     * Places an order in the market.
-     *
-     * @param order the incoming order
-     * @return the acknowledgement (ACCEPTED or REJECTED) and the trades this order produced
-     * @throws IOException if the JSON files cannot be written
+     * Validates an order, matches it in the book, and returns the result.
+     * If the order is rejected, the result will contain an OrderAck with status REJECTED and a reason.
+     * If the order is accepted, the result will contain an OrderAck with status ACCEPTED and a list of trades that occurred as a result of the match.
+     * @param order
+     * @return
+     * @throws IOException
      */
     public MatchResult place(Order order) throws IOException
     {

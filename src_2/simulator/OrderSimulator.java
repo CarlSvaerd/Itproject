@@ -4,19 +4,19 @@
 package simulator;
 
 import engine.domain.Order;
-import serialization.JsonSerializer;
-import java.time.Instant;
-import java.time.Duration;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
+import serialization.JsonSerializer;
 
 public class OrderSimulator {
 
@@ -87,7 +87,8 @@ public class OrderSimulator {
                                 + ": " + response.body());
                     }
                     System.out.println("Sent order " + order.getOrderId()
-                            + ", response HTTP " + response.statusCode());
+                            + ", response HTTP " + response.statusCode()
+                            + ": " + " \n" + response.body());
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     return;

@@ -23,15 +23,15 @@ import com.sun.net.httpserver.HttpExchange;
 import engine.MatchingEngine;
 import engine.domain.MatchResult;
 import engine.domain.Order;
-import engine.domain.OrdersJsonParser;
 import engine.domain.OrderAck;
-import serialization.JsonSerializer;
+import engine.domain.OrdersJsonParser;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.DateTimeException;
+import serialization.JsonSerializer;
 
 public class Orders
 {
@@ -86,7 +86,7 @@ public class Orders
         try {
             // Turn JSON into an Order, then let the engine validate and match it
             Order order = OrdersJsonParser.parseNewOrder(orderJson);
-            MatchResult result = matchingEngine.place(order);
+            MatchResult result = matchingEngine.place(order); // Do something with the result, e.g., log it or send it back to the client
 
             if (result.getAck().getStatus() == OrderAck.Status.REJECTED) {
                 // Engine rejected the order, for example, bad fields and so on.

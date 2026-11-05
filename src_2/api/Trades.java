@@ -1,4 +1,11 @@
-// GET /trades
+// The door for GET calls /trades
+//
+// 1. Check that the method is GET
+// 2. Read data/trades.json
+// 3. Send back what the file contains with status 200.
+//
+// Example:
+// curl http://localhost:8080/trades
 
 package api;
 
@@ -12,37 +19,38 @@ import java.nio.file.Path;
 
 public class Trades
 {
-    public void handleGet(HttpExchange exchange) throws IOException
+    public void handleGet(HttpExchange request) throws IOException
     {
-        boolean isGet = "GET".equals(exchange.getRequestMethod());
+        // Reject anything that is not GET
+        boolean isGet = "GET".equals(request.getRequestMethod());
         if (isGet == false)
         {
-            writeResponse(exchange, 405, "Use GET\n");
+            writeResponse(request, 405, "Use GET\n");
             return;
         }
 
-        getTrades(exchange);
+        getTrades(request);
     }
 
-
-    private void getTrades(HttpExchange exchange) throws IOException
+    private void getTrades(HttpExchange request) throws IOException
     {
+        // History is already written by MatchingEngine so this endpoint only reads the file
         Path tradesFile = Path.of("data", "trades.json");
         byte[] tradesFileBytes = Files.readAllBytes(tradesFile);
         String tradesJson = new String(tradesFileBytes, StandardCharsets.UTF_8);
-        int status = 200;
 
-        writeResponse(exchange, status, tradesJson);
+        writeResponse(request, 200, tradesJson);
     }
 
-    private static void writeResponse(HttpExchange exchange, int statusCode, String responseText) throws IOException
+    // Send status code and body back to the client
+    private static void writeResponse(HttpExchange request, int statusCode, String responseText) throws IOException
     {
         byte[] responseBytes = responseText.getBytes(StandardCharsets.UTF_8);
 
-        exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
-        exchange.sendResponseHeaders(statusCode, responseBytes.length);
+        request.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
+        request.sendResponseHeaders(statusCode, responseBytes.length);
 
-        try (OutputStream responseBody = exchange.getResponseBody())
+        try (OutputStream responseBody = request.getResponseBody())
         {
             responseBody.write(responseBytes);
         }

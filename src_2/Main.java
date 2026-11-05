@@ -2,6 +2,10 @@
 // java Main 10 - generates 10 orders and writes orders.json and trades.json
 // java Main --simulate [duration-seconds] [interval-millis] - runs an HTTP order event demo
 
+// java Main                 → Start only a http server
+// java Main 10              → Make 10 orders and add them to the matchingEningne.
+// java Main --simulate ...  → Start the server and send orders via http.
+
 import com.sun.net.httpserver.HttpServer;
 import java.util.ArrayList;
 import java.net.URI;
@@ -16,12 +20,14 @@ import simulator.OrderSimulator;
 public class Main {
     public static void main(String[] args) throws Exception
     {
+        // Mode 1 - HTTP demo that posts random orders for a while
         if (args.length > 0 && "--simulate".equals(args[0]))
         {
             runOrderEventDemo(args);
             return;
         }
 
+        // Mode 2 - generate N orders and place them without HTTP
         boolean generateOrders = args.length == 1;
         if (generateOrders)
         {
@@ -38,6 +44,7 @@ public class Main {
             return;
         }
 
+        // Mode 3 - Just start listening for HTTP requests
         new Exchange().start();
     }
 
@@ -50,6 +57,7 @@ public class Main {
         long durationSeconds = args.length > 1 ? Long.parseLong(args[1]) : 10;
         long intervalMillis = args.length > 2 ? Long.parseLong(args[2]) : 1000;
 
+        // Start server, send random POSTs to /orders, then shut down
         HttpServer server = new Exchange().start();
         try
         {

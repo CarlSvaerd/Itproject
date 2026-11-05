@@ -27,7 +27,7 @@ public class MatchingEngine
 
     public MatchingEngine() throws IOException
     {
-        // Läs in tidigare trades så att historiken finns kvar mellan körningar
+        // Keep previous trade history when the engine starts
         Path tradesPath = Path.of("data", "trades.json");
         if (Files.exists(tradesPath))
         {
@@ -37,23 +37,26 @@ public class MatchingEngine
 
     public MatchResult place(Order order) throws IOException
     {
+        // Reject bad orders before they touch the book
         String rejectReason = validate(order);
         if (rejectReason != null)
         {
             OrderAck rejected = new OrderAck(order.getOrderId(), order.getAccountId(),
                     OrderAck.Status.REJECTED, rejectReason, Instant.now());
+            
             return new MatchResult(rejected, List.of());
         }
 
         OrderAck accepted = new OrderAck(order.getOrderId(), order.getAccountId(),
                 OrderAck.Status.ACCEPTED, null, Instant.now());
 
+        // Try to match against resting opposite orders
         List<Trade> newTrades = book.match(order);
         trades.addAll(newTrades);
 
         if (order.getRemainingQuantity() > 0)
         {
-            book.addOrder(order); // det som blev över läggs i boken
+            book.addOrder(order);
         }
 
         List<Order> allOrders = new ArrayList<>();

@@ -24,16 +24,6 @@ import java.util.List;
  *   3. Return an acknowledgement (spec section 2) and any resulting trades (spec section 3).
  *   4. Persist the order book and the full trade history (spec section 4) to data/*.json.
  *
- * Matching rules:
- *   - Only orders with the same symbol can match.
- *   - A buy matches sells priced at or below its limit; a sell matches buys at or above its limit.
- *   - Best price is matched first; at equal price, the oldest order is matched first.
- *   - Trades execute at the price of the resting order (the one already in the book).
- *   - Partial fills are allowed; any unfilled remainder is added to the book.
- *
- * Persistence:
- *   - data/orders.json holds only active (not fully filled) orders.
- *   - data/trades.json holds every trade ever made and is loaded on startup.
  */
 public class MatchingEngine
 {

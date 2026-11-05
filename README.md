@@ -79,6 +79,9 @@ Projektet har inget separat testramverk (JUnit m.m.). Verifiera manuellt så hä
 3. **Server + demo:** `java -cp out Main --simulate 5 1000` – ska avslutas utan fel och logga `Sent order … HTTP 200`.
 4. **API:** Starta `java -cp out Main` i en terminal. 
     I en annan:
+    
     - `curl http://localhost:8080/trades` (tom lista eller befintlig historik)
+    
     - Skicka en köp- och en säljorder med samma symbol och överlappande pris 
+    
     – hämta `/trades` igen och bekräfta att en affär tillkommit.

@@ -1,8 +1,8 @@
 // The door for GET calls /trades
 //
 // 1. Check that the method is GET
-// 2. Read data/trades.json
-// 3. Send back what the file contains with status 200.
+// 2. Read data/trades.json, or return an empty list if it does not exist yet
+// 3. Send back the contents with status 200.
 //
 // Example:
 // curl http://localhost:8080/trades
@@ -34,8 +34,13 @@ public class Trades
 
     private void getTrades(HttpExchange request) throws IOException
     {
-        // History is already written by MatchingEngine so this endpoint only reads the file
+        // History is written by MatchingEngine. Before the first order the file does not exist.
         Path tradesFile = Path.of("data", "trades.json");
+        if (!Files.exists(tradesFile)) {
+            writeResponse(request, 200, "[]\n");
+            return;
+        }
+
         byte[] tradesFileBytes = Files.readAllBytes(tradesFile);
         String tradesJson = new String(tradesFileBytes, StandardCharsets.UTF_8);
 

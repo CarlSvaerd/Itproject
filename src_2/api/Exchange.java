@@ -22,15 +22,15 @@ public class Exchange
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         MatchingEngine matchingEngine = new MatchingEngine();
 
-        // Handler for placing orders
+        // Handler for placing and reading orders
         Orders ordersHandler = new Orders(matchingEngine);
-        HttpHandler ordersPostHandler = ordersHandler::handlePost;
+        HttpHandler ordersHandlerMethod = ordersHandler::handle;
 
         // Handler for reading trade history
         Trades tradesHandler = new Trades();
         HttpHandler tradesGetHandler = tradesHandler::handleGet;
 
-        server.createContext("/orders", ordersPostHandler);
+        server.createContext("/orders", ordersHandlerMethod);
         server.createContext("/trades", tradesGetHandler);
 
         server.start();

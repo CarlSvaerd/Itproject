@@ -10,7 +10,7 @@ exchange-simulator/
 │   ├── Main.java                 # Startpunkt (server, batch, demo)
 │   ├── api/                      # HTTP-API
 │   │   ├── Exchange.java         # Server på port 8080
-│   │   ├── Orders.java           # POST /orders
+│   │   ├── Orders.java           # POST /orders och GET /orders
 │   │   └── Trades.java           # GET /trades
 │   ├── engine/
 │   │   ├── MatchingEngine.java   # Validering, matchning, persistens
@@ -61,6 +61,14 @@ curl -X POST http://localhost:8080/orders \
 
 Svar: Ordern utskriven.
 
+**Hämta orderboken** – `GET /orders`:
+
+```bash
+curl http://localhost:8080/orders
+```
+
+Svar: Skriver ut orderboken i JSON. Om ingen order ligger i boken returneras `[]`.
+
 **Hämta affärer** – `GET /trades`:
 
 ```bash
@@ -80,6 +88,7 @@ Projektet har inget separat testramverk (JUnit m.m.). Verifiera manuellt så hä
 4. **API:** Starta `java -cp out Main` i en terminal. 
 
     I en annan terminal:
+   - `curl http://localhost:8080/orders` (aktiva ordrar, eller `[]`)
    - `curl http://localhost:8080/trades` (tom lista eller befintlig historik)
    - Skicka en köp- och en säljorder med samma symbol och överlappande pris
    - Hämta `/trades` igen och bekräfta att en affär tillkommit

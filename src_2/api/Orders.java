@@ -1,15 +1,21 @@
-// This is the door for POST /orders.
+// This is the door for /orders.
 //
-// 1. Check that it is post.
-// 2. Read the request's body as text.
-// 3. Translate JSON to a Order object with the OrdersJsonParser.
-// 4. Call matchingEngine.place(order)
-// 5. Write back a ack as JSON.
+// POST:
+// 1. Read the request's body as text.
+// 2. Translate JSON to a Order object with the OrdersJsonParser.
+// 3. Call matchingEngine.place(order)
+// 4. Write back a ack as JSON.
+//
+// GET:
+// 1. Read data/orders.json, or return an empty list if it does not exist yet.
+// 2. Send back the resting orders with status 200.
 //
 // Example of a call:
 // curl -X POST http://localhost:8080/orders \
 //  -H "Content-Type: application/json" \
 //  -d '{"order_id":"...","account_id":100001,"symbol":"AAPL","side":"buy","price":100,"quantity":10}'
+//
+// curl http://localhost:8080/orders
 
 package api;
 
@@ -23,6 +29,8 @@ import serialization.JsonSerializer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.DateTimeException;
 
 public class Orders
@@ -35,17 +43,38 @@ public class Orders
         this.matchingEngine = matchingEngine;
     }
 
-    public void handlePost(HttpExchange request) throws IOException
+    public void handle(HttpExchange request) throws IOException
     {
-        // Reject anything that is not POST
-        boolean isPost = "POST".equals(request.getRequestMethod());
-        if (isPost == false)
+        String method = request.getRequestMethod();
+        if ("GET".equals(method))
         {
-            writeResponse(request, 405, "Use POST\n");
+            getOrders(request);
+            return;
+        }
+        
+        if ("POST".equals(method))
+        {
+            placeOrder(request);
             return;
         }
 
-        placeOrder(request);
+        writeResponse(request, 405, "Use GET or POST\n");
+    }
+
+    private void getOrders(HttpExchange request) throws IOException
+    {
+        // Resting orders are written by MatchingEngine. Before the first order the file does not exist.
+        Path ordersFile = Path.of("data", "orders.json");
+        if (!Files.exists(ordersFile))
+        {
+            writeResponse(request, 200, "[]\n");
+            return;
+        }
+
+        byte[] ordersFileBytes = Files.readAllBytes(ordersFile);
+        String ordersJson = new String(ordersFileBytes, StandardCharsets.UTF_8);
+        
+        writeResponse(request, 200, ordersJson);
     }
 
     private void placeOrder(HttpExchange request) throws IOException

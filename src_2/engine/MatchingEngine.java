@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import serialization.JsonSerializer;
 
 /**
  * MatchingEngine – the core of the exchange simulator.

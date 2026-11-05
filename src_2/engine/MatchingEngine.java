@@ -1,8 +1,3 @@
-// Validates an order
-// Matches it in the book
-// Returns ack and trades
-// Writes history to JSON
-
 package engine;
 
 import engine.domain.MatchResult;
@@ -20,14 +15,34 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * MatchingEngine – the core of the exchange simulator.
+ *
+ * Responsibilities:
+ *   1. Validate incoming orders (spec section 1).
+ *   2. Match them against the order book using price-time priority.
+ *   3. Return an acknowledgement (spec section 2) and any resulting trades (spec section 3).
+ *   4. Persist the order book and the full trade history (spec section 4) to data/*.json.
+ *
+ * Matching rules:
+ *   - Only orders with the same symbol can match.
+ *   - A buy matches sells priced at or below its limit; a sell matches buys at or above its limit.
+ *   - Best price is matched first; at equal price, the oldest order is matched first.
+ *   - Trades execute at the price of the resting order (the one already in the book).
+ *   - Partial fills are allowed; any unfilled remainder is added to the book.
+ *
+ * Persistence:
+ *   - data/orders.json holds only active (not fully filled) orders.
+ *   - data/trades.json holds every trade ever made and is loaded on startup.
+ */
 public class MatchingEngine
 {
-    private final OrderBook book = new OrderBook();
+    private final OrderBook book = new OrderBook();   // loads data/orders.json on creation
     private final List<Trade> trades = new ArrayList<>();
 
     public MatchingEngine() throws IOException
     {
-        // Keep previous trade history when the engine starts
+        // Load previous trades so the history survives restarts
         Path tradesPath = Path.of("data", "trades.json");
         if (Files.exists(tradesPath))
         {
@@ -35,30 +50,42 @@ public class MatchingEngine
         }
     }
 
+    /**
+     * Places an order in the market.
+     *
+     * @param order the incoming order
+     * @return the acknowledgement (ACCEPTED or REJECTED) and the trades this order produced
+     * @throws IOException if the JSON files cannot be written
+     */
     public MatchResult place(Order order) throws IOException
     {
-        // Reject bad orders before they touch the book
+        // 1. Validate – invalid orders are rejected and never reach the book
         String rejectReason = validate(order);
         if (rejectReason != null)
         {
             OrderAck rejected = new OrderAck(order.getOrderId(), order.getAccountId(),
                     OrderAck.Status.REJECTED, rejectReason, Instant.now());
-            
+
             return new MatchResult(rejected, List.of());
         }
 
         OrderAck accepted = new OrderAck(order.getOrderId(), order.getAccountId(),
                 OrderAck.Status.ACCEPTED, null, Instant.now());
 
-        // Try to match against resting opposite orders
+        // 2. Match against the opposite side of the book.
+        //    This also reduces remaining quantity on both orders
+        //    and removes fully filled resting orders from the book.
         List<Trade> newTrades = book.match(order);
         trades.addAll(newTrades);
 
+        // 3. Whatever could not be matched rests in the book and waits for a counterparty
         if (order.getRemainingQuantity() > 0)
         {
             book.addOrder(order);
         }
 
+        // 4. Persist state. Note: the files are rewritten after every order,
+        //    which is simple but gets slower as the history grows.
         List<Order> allOrders = new ArrayList<>();
         allOrders.addAll(book.getBuyOrders());
         allOrders.addAll(book.getSellOrders());
@@ -70,6 +97,11 @@ public class MatchingEngine
         return new MatchResult(accepted, newTrades);
     }
 
+    /**
+     * Checks the order against the spec.
+     *
+     * @return a reject reason, or null if the order is valid
+     */
     private String validate(Order order)
     {
         if (order.getAccountId() < 100000 || order.getAccountId() > 999999) return "account_id must have 6 digits";
@@ -78,5 +110,4 @@ public class MatchingEngine
         if (order.getQuantity() <= 0)                                       return "quantity must be > 0";
         return null;
     }
-
 }

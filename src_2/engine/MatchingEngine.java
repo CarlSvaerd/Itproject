@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class MatchingEngine
 {
-    private final OrderBook book = new OrderBook();   // loads data/orders.json on creation
+    private final OrderBook book = new OrderBook();// loads data/orders.json on creation
     private final List<Trade> trades = new ArrayList<>();
 
     public MatchingEngine() throws IOException

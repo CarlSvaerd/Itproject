@@ -3,6 +3,7 @@
 // java Main --simulate [duration-seconds] [interval-millis] - runs an HTTP order event demo
 
 import api.Exchange;
+import com.sun.net.httpserver.HttpServer;
 import engine.MatchingEngine;
 import engine.domain.MatchResult;
 import engine.domain.Order;
@@ -51,7 +52,7 @@ public class Main {
         long durationSeconds = args.length > 1 ? Long.parseLong(args[1]) : 10;
         long intervalMillis = args.length > 2 ? Long.parseLong(args[2]) : 1000;
 
-        //HttpServer server = new Exchange().start();
+        HttpServer server = new Exchange().start();
         try
         {
             Thread sender = new OrderSimulator().sendRandomOrderEvents(
@@ -63,7 +64,7 @@ public class Main {
         }
         finally
         {
-            //server.stop(0);
+            server.stop(0);
         }
     }
 }

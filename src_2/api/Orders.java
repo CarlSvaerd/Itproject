@@ -63,7 +63,7 @@ public class Orders
 
     private void getOrders(HttpExchange request) throws IOException
     {
-        // Resting orders are written by MatchingEngine. Before the first order the file does not exist.
+        // Resting orders are written by MatchingEngine. Before the first order the file may be missing or empty.
         Path ordersFile = Path.of("data", "orders.json");
         if (!Files.exists(ordersFile))
         {
@@ -73,6 +73,11 @@ public class Orders
 
         byte[] ordersFileBytes = Files.readAllBytes(ordersFile);
         String ordersJson = new String(ordersFileBytes, StandardCharsets.UTF_8);
+        if (ordersJson.isBlank())
+        {
+            writeResponse(request, 200, "[]\n");
+            return;
+        }
         
         writeResponse(request, 200, ordersJson);
     }

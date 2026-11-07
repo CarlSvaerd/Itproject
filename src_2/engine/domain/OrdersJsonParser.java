@@ -34,6 +34,9 @@ public final class OrdersJsonParser {
         OrdersJsonParser parser = new OrdersJsonParser(json);
         List<Trade> trades = new ArrayList<>();
         parser.skipWhitespace();
+        if (parser.index == json.length()) {
+            return trades;
+        }
         parser.expect('[');
         parser.skipWhitespace();
         if (!parser.consume(']')) {

@@ -22,6 +22,7 @@ public class OrderSimulator {
 
     private static final String[] SYMBOLS = { "AAPL", "VOLV-B", "ERIC-B" };
     private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final MarketPrice marketPrice = new MarketPrice();
 
     /**
      * Generates a list of random Order objects.
@@ -37,7 +38,7 @@ public class OrderSimulator {
             UUID orderId = UUID.randomUUID();
             int accountId = rnd.nextInt(900000) + 100000; // 6 numbers
             String symbol = SYMBOLS[rnd.nextInt(SYMBOLS.length)]; // few symbols so orders can match
-            double price = Math.round((95 + 10 * rnd.nextDouble()) * 100) / 100.0; // 95.00–105.00, two decimals
+            double price = marketPrice.getPriceOfStock(symbol);
             int quantity = rnd.nextInt(100) + 1; // Random quantity between 1 and 100
 
             orders.add(new Order(orderId, accountId, symbol, side, price, quantity, quantity, Instant.now()));

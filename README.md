@@ -16,7 +16,8 @@ exchange-simulator/
 │   │   ├── MatchingEngine.java   # Validering, matchning, persistens
 │   │   └── domain/               # Order, OrderBook, Trade, JSON-parser
 │   ├── simulator/
-│   │   └── OrderSimulator.java   # Slumpordrar (direkt eller via HTTP)
+│   │   ├── OrderSimulator.java   # Slumpordrar (direkt eller via HTTP)
+│   │   └── MarketPrice.java      # Senaste pris från Yahoo Finance
 │   └── serialization/
 │       └── JsonSerializer.java
 ├── data/
@@ -46,8 +47,10 @@ Alla kommandon använder classpath `out`:
 | Kommando | Vad det gör |
 |----------|-------------|
 | `java -cp out Main` | Startar HTTP-server på [http://localhost:8080](http://localhost:8080) |
-| `java -cp out Main 10` | Genererar 10 slumpordrar direkt mot motorn (ingen server) |
+| `java -cp out Main 10` | Genererar 10 slumpordrar direkt mot motorn (ingen server). Priset är senaste kursen från Yahoo Finance. |
 | `java -cp out Main --simulate 10 1000` | Startar servern, skickar ordrar via HTTP i 10 s (1 order/sek) och stänger |
+
+Priset hämtas från Yahoo Finance. Om anropet misslyckas slumpas priset mellan 95 och 105.
 
 ### API
 

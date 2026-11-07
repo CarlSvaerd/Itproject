@@ -34,7 +34,7 @@ public class Trades
 
     private void getTrades(HttpExchange request) throws IOException
     {
-        // History is written by MatchingEngine. Before the first order the file does not exist.
+        // History is written by MatchingEngine. Before the first order the file may be missing or empty.
         Path tradesFile = Path.of("data", "trades.json");
         if (!Files.exists(tradesFile)) {
             writeResponse(request, 200, "[]\n");
@@ -43,6 +43,10 @@ public class Trades
 
         byte[] tradesFileBytes = Files.readAllBytes(tradesFile);
         String tradesJson = new String(tradesFileBytes, StandardCharsets.UTF_8);
+        if (tradesJson.isBlank()) {
+            writeResponse(request, 200, "[]\n");
+            return;
+        }
 
         writeResponse(request, 200, tradesJson);
     }

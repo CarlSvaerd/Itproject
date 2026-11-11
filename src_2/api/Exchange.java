@@ -32,6 +32,7 @@ public class Exchange
 
         server.createContext("/orders", ordersHandlerMethod);
         server.createContext("/trades", tradesGetHandler);
+        server.createContext("/", new Dashboard());
 
         server.start();
         
